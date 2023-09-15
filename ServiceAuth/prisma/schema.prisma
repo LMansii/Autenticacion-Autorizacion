@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int         @default(autoincrement())
+  first_name   String      @db.VarChar(60) //Nombre
+  last_name    String      @db.VarChar(60) //apellido
+  email        String?     @unique @db.VarChar(255) // Email
+  password     String      @db.VarChar(255) //contraseña
+  user         String      @default("auto") @db.VarChar(30) // usuario que creo el registro
+  status       Int         @default(1) @db.Int // estado de registro 1- activo 0 - borrado
+  createdAt    DateTime    @default(now()) // fecha de creacion de registro
+  updatedAt    DateTime?   @updatedAt // fecha de modificacion de registro
+  Usuario_role User_Role[]
+  AuditLog     AuditLog[]
+
+  @@id([id])
+}
+
+model Role {
+  id             Int              @default(autoincrement())
+  name           String           @db.VarChar(60) //Nombre
+  description    String           @db.VarChar(255) //apellido
+  user           String           @default("auto") @db.VarChar(30) // usuario que creo el registro
+  status         Int              @default(1) @db.Int // estado de registro 1- activo 0 - borrado
+  createdAt      DateTime         @default(now()) // fecha de creacion de registro
+  updatedAt      DateTime?        @updatedAt // fecha de modificacion de registro
+  Usuario_role   User_Role[]
+  Rol_Permission Rol_Permission[]
+
+  @@id([id])
+}
+
+model Permission {
+  id             Int              @default(autoincrement())
+  name           String           @db.VarChar(60) //Nombre
+  description    String           @db.VarChar(255) //apellido
+  user           String           @default("auto") @db.VarChar(30) // usuario que creo el registro
+  status         Int              @default(1) @db.Int // estado de registro 1- activo 0 - borrado
+  createdAt      DateTime         @default(now()) // fecha de creacion de registro
+  updatedAt      DateTime?        @updatedAt // fecha de modificacion de registro
+  Rol_Permission Rol_Permission[]
+
+  @@id([id])
+}
+
+model User_Role {
+  id      Int  @default(autoincrement())
+  user_id Int
+  role_id Int
+  user    User @relation(fields: [user_id], references: [id])
+  role    Role @relation(fields: [role_id], references: [id])
+
+  @@id([id])
+  @@unique([user_id, role_id])
+}
+
+model Rol_Permission {
+  id            Int        @default(autoincrement())
+  role_id       Int
+  permission_id Int
+  role          Role       @relation(fields: [role_id], references: [id])
+  permission    Permission @relation(fields: [permission_id], references: [id])
+
+  @@id([id])
+}
+
+model AuditLog {
+  id      Int    @default(autoincrement())
+  user_id Int
+  action  String @db.VarChar(255) //Accion realizada . Inicio de sesion, cierre de sesion, cambios de password, y acciones del rol-permision que ejecuto por ejemplo, borrar un ususario o crear una carpeta en el otro proyecto
+  user    User   @relation(fields: [user_id], references: [id])
+
+  @@id([id])
+}
