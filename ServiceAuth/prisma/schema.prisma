@@ -8,17 +8,19 @@ datasource db {
 }
 
 model User {
-  id           Int         @default(autoincrement())
-  first_name   String      @db.VarChar(60) //Nombre
-  last_name    String      @db.VarChar(60) //apellido
-  email        String?     @unique @db.VarChar(255) // Email
-  password     String      @db.VarChar(255) //contraseña
-  user         String      @default("auto") @db.VarChar(30) // usuario que creo el registro
-  status       Int         @default(1) @db.Int // estado de registro 1- activo 0 - borrado
-  createdAt    DateTime    @default(now()) // fecha de creacion de registro
-  updatedAt    DateTime?   @updatedAt // fecha de modificacion de registro
-  Usuario_role User_Role[]
-  AuditLog     AuditLog[]
+  id                        Int         @default(autoincrement())
+  first_name                String      @db.VarChar(60) //Nombre
+  last_name                 String      @db.VarChar(60) //apellido
+  email                     String?     @unique @db.VarChar(255) // Email
+  password                  String      @db.VarChar(255) //contraseña
+  codeVerification          String      @db.VarChar(6) //Codigo de verificacion
+  statusAccountVerification Int         @default(0) @db.Int // ESTADO DE LA CUENTA EN CUESTION DE VERIFICACION, SI EL EMAIL ES REAL PODRA COMPLETAR EL CODIGO
+  user                      String      @default("auto") @db.VarChar(30) // usuario que creo el registro
+  status                    Int         @default(1) @db.Int // estado de registro 1- activo 0 - borrado
+  createdAt                 DateTime    @default(now()) // fecha de creacion de registro
+  updatedAt                 DateTime?   @updatedAt // fecha de modificacion de registro
+  Usuario_role              User_Role[]
+  AuditLog                  AuditLog[]
 
   @@id([id])
 }
