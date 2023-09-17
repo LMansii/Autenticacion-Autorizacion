@@ -19,6 +19,10 @@ app.use(`/api/${process.env.VERSION_API}`, users)
 app.use(`/api/${process.env.VERSION_API}`, role)
 //------------- Permission -------------
 app.use(`/api/${process.env.VERSION_API}`, permission)
+//------------- User_Role -------------
+
+//------------- Rol_Permission -------------
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

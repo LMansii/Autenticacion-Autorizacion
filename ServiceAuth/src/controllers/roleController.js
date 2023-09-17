@@ -21,7 +21,7 @@ export async function getRoleController(req, res) {
         const id = Number(req.query.id) || undefined;
         const page = req.query.page;
         const limit = req.query.limit;
-        const result = await getRole(id,page,limit)
+        const result = await getRole(id, page, limit)
         console.log(result, "result")
         if (result.status === "success") {
             return res.status(201).json(result);
