@@ -5,6 +5,7 @@ const app = express();
 const port = process.env.PORT || 3001;
 //impoted routes
 import users from "./src/routes/userRoutes.js";
+import role from "./src/routes/roleRoutes.js"
 //Configuration express
 app.use(cors());
 app.use(express.json());
@@ -14,6 +15,8 @@ app.use(morgan("combined"));
 //------------- Users -------------
 app.use(`/api/${process.env.VERSION_API}`, users)
 //------------- Roles -------------
+app.use(`/api/${process.env.VERSION_API}`, role)
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

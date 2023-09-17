@@ -1,5 +1,4 @@
-import { getUsersModels, registerUsersModels, verificationRegisterUserModels, updateUsersModels, deleteUsersModels,loginUsersModel } from "../models/userModel.js"
-import Jwt from "jsonwebtoken";
+import { getUsersModels, registerUsersModels, verificationRegisterUserModels, updateUsersModels, deleteUsersModels, loginUsersModel } from "../models/userModel.js"
 import bcrypt from "bcrypt";
 
 //PATH = /register
@@ -55,7 +54,7 @@ export async function getUserController(req, res) {
     }
 }
 
-
+//PATH = /updateUser?id=4
 export async function updateUsersController(req, res) {
     try {
         const updateUser = await updateUsersModels(Number(req.query.id), req.body)
@@ -69,7 +68,7 @@ export async function updateUsersController(req, res) {
     }
 }
 
-
+//PATH = /deleteUser?id=4
 export async function deleteUsersController(req, res) {
     try {
         const deleteUser = await deleteUsersModels(Number(req.query.id))
@@ -83,7 +82,7 @@ export async function deleteUsersController(req, res) {
     }
 }
 
-
+//PATH = /login
 export async function loginUsersController(req, res) {
     try {
         const loginUser = await loginUsersModel(req.body)
