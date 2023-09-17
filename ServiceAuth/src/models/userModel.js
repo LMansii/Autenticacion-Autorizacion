@@ -1,14 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import nodemailer from "nodemailer"
 const prisma = new PrismaClient();
+import Jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
-// {
-//     "status": "success",
-//     "data": {
-//         // Datos relevantes aquí
-//     },
-//     "message": "Operación exitosa"
-// }
+//------------- FUNCTIONS -------------
 function generateRandomCode() {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let code = '';
@@ -52,7 +48,6 @@ async function sendEmialVerificationCode(email, code) {
 
 export async function registerUsersModels(data) {
     try {
-        console.log(data, "data")
         const codeVerification = generateRandomCode()
         data.codeVerification = codeVerification
         const findUserEmail = await prisma.User.findMany({
@@ -60,7 +55,6 @@ export async function registerUsersModels(data) {
                 email: data.email,
             },
         });
-        console.log(findUserEmail, "findUserEmail")
         if (findUserEmail.length > 0) {
             return { status: "error", data: [], message: "El email ya se encuentra registrado." };
         } else {
@@ -76,6 +70,8 @@ export async function registerUsersModels(data) {
     }
 }
 
+
+//------------- FUNCTION MODELS -------------
 export async function verificationRegisterUserModels(email, codeVerification) {
     try {
         const findUserEmail = await prisma.User.findMany({
@@ -113,7 +109,7 @@ export async function verificationRegisterUserModels(email, codeVerification) {
 
 export async function getUsersModels(id, email) {
     try {
-        let whereClause = {};
+        let whereClause = { status: 1 };
         let message = "";
 
         if (id !== undefined) {
@@ -142,3 +138,85 @@ export async function getUsersModels(id, email) {
 }
 
 
+export async function updateUsersModels(id, data) {
+    try {
+        if (id === undefined || data === undefined) {
+            return { status: "error", data: [], message: "Faltan datos!" };
+        }
+        const updateUser = await prisma.User.update({
+            where: {
+                id: id
+            },
+            data: data
+        })
+
+        if (!updateUser) {
+            // Si updateUser es null o undefined, significa que no se pudo editar el usuario.
+            return { status: "error", data: [], message: "Ocurrió un error al modificar!" };
+        }
+
+        return { status: "success", data: updateUser, message: "Usuario modificado con exito!" };
+
+
+    } catch (error) {
+        console.log(error)
+        throw error; // Re-lanza la excepción para que sea manejada en el controlador
+    }
+}
+
+export async function deleteUsersModels(id) {
+    try {
+        if (id === undefined) {
+            return { status: "error", data: [], message: "Faltan datos!" };
+        }
+        const deleteUser = await prisma.User.update({
+            where: {
+                id: id
+            },
+            data: {
+                status: 0
+            }
+        })
+
+        if (!deleteUser) {
+            // Si updateUser es null o undefined, significa que no se pudo editar el usuario.
+            return { status: "error", data: [], message: "Ocurrió un error al eliminar!" };
+        }
+
+        return { status: "success", data: deleteUser, message: "Usuario eliminado con exito!" };
+
+    } catch (error) {
+        console.log(error)
+        throw error; // Re-lanza la excepción para que sea manejada en el controlador
+    }
+}
+
+export async function loginUsersModel(data) {
+    try {
+        const { email, password } = data;
+        const secretKey = process.env.SECRET_KEY;
+        if (email === undefined || password === undefined) {
+            return { status: "error", data: [], message: "Faltan datos!" };
+        }
+        const findUserEmail = await prisma.User.findMany({
+            where: {
+                status: 1,
+                email: email
+            },
+        })
+        if (findUserEmail.length === 0) {
+            return findUserEmail;
+        }
+        const passwordMatch = await bcrypt.compare(password, findUserEmail[0].password);
+        if (!passwordMatch) {
+            return { status: "error", data: [], message: "Contraseña incorrecta!" };
+        }
+        const token = Jwt.sign({ userId: findUserEmail[0].id }, secretKey, {
+            expiresIn: process.env.TIME_TOKEN_JWT,
+        });
+        return { status: "success", data: token, message: "Usuario logeado con exito!" };
+    } catch (error) {
+        console.log(error)
+        throw error; // Re-lanza la excepción para que sea manejada en el controlador
+    }
+}
