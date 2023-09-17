@@ -107,26 +107,57 @@ export async function verificationRegisterUserModels(email, codeVerification) {
     }
 }
 
-export async function getUsersModels(id, email) {
+export async function getUsersModels(id, email, page, limit) {
     try {
         let whereClause = { status: 1 };
         let message = "";
 
+        //paginado
+        const totalUsers = await prisma.User.count({
+            where: {
+                status: 1
+            }
+        })
+        let idOEmail = false;
+        let paginas = totalUsers / limit;
+        let entero = Math.trunc(paginas)
+        let calculo = paginas - entero
+        if (calculo > 0) {
+            entero = entero + 1;
+            paginas = entero;
+        }
+        //FIN - paginado
+        let skip = Number(page) * Number(limit)
+        let take = Number(limit)
         if (id !== undefined) {
             whereClause.id = Number(id);
             message = "Usuario encontrado con éxito";
+            skip = 0
+            take = 1
+            idOEmail = true
         }
 
         if (email !== undefined) {
             whereClause.email = email;
             message = "Usuario encontrado con éxito";
+            skip = 0
+            take = 1
+            idOEmail = true
         }
 
         const users = await prisma.user.findMany({
+            skip: skip,
+            take: take,
             where: whereClause,
+            orderBy: {
+                id: 'asc',
+            },
         });
 
         if (users.length > 0) {
+            if (!idOEmail) {
+                users.unshift({ pagination: paginas })
+            }
             return { status: "success", data: users, message };
         } else {
             return { status: "error", data: [], message: "Usuario no encontrado" };

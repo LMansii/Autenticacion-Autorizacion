@@ -39,7 +39,12 @@ export async function getUserController(req, res) {
     try {
         const id = Number(req.query.id) || undefined;
         const email = req.query.email || undefined;
-        const result = await getUsersModels(id, email);
+        const page = req.query.page;
+        const limit = req.query.limit;
+        // if(page === undefined || limit === undefined){
+        //     return res.status(404).json({status: "error", data: [], msg: "faltan Page y Limit"});
+        // }
+        const result = await getUsersModels(id, email,page,limit);
 
         if (result.status === "success") {
             return res.status(200).json(result);
