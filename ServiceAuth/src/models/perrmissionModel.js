@@ -15,18 +15,48 @@ export async function createPermission(data) {
     }
 }
 
-export async function getPermission(id) {
+export async function getPermission(id, page, limit) {
     try {
         let whereClause = { status: 1 };
         let message = "";
+
+        //paginado
+        const totalPermission = await prisma.Permission.count({
+            where: {
+                status: 1
+            }
+        })
+        let idOEmail = false;
+        let paginas = totalPermission / limit;
+        let entero = Math.trunc(paginas)
+        let calculo = paginas - entero
+        if (calculo > 0) {
+            entero = entero + 1;
+            paginas = entero;
+        }
+        let skip = Number(page) * Number(limit)
+        let take = Number(limit)
+        //FIN - paginado
+
         if (id !== undefined) {
             whereClause.id = Number(id);
             message = "Permission encontrado con éxito";
+            skip = 0
+            take = 1
+            idOEmail = true
         }
+
+
+
         const findPermission = await prisma.Permission.findMany({
+            skip: skip,
+            take: take,
             where: whereClause,
         });
         if (findPermission.length > 0) {
+            if (!idOEmail) {
+                findPermission.unshift({ pagination: paginas })
+            }
             return { status: "success", data: findPermission, message };
         } else {
             return { status: "error", data: [], message: "Permission no encontrado" };

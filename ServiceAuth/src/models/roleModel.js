@@ -15,18 +15,45 @@ export async function createRole(data) {
     }
 }
 
-export async function getRole(id) {
+export async function getRole(id, page, limit) {
     try {
         let whereClause = { status: 1 };
         let message = "";
+
+        //paginado
+        const totalRole = await prisma.Role.count({
+            where: {
+                status: 1
+            }
+        })
+        let idOEmail = false;
+        let paginas = totalRole / limit;
+        let entero = Math.trunc(paginas)
+        let calculo = paginas - entero
+        if (calculo > 0) {
+            entero = entero + 1;
+            paginas = entero;
+        }
+        let skip = Number(page) * Number(limit)
+        let take = Number(limit)
+        //FIN - paginado
+
         if (id !== undefined) {
             whereClause.id = Number(id);
             message = "Role encontrado con éxito";
+            skip = 0
+            take = 1
+            idOEmail = true
         }
         const findRole = await prisma.Role.findMany({
+            skip: skip,
+            take: take, 
             where: whereClause,
         });
         if (findRole.length > 0) {
+            if (!idOEmail) {
+                findRole.unshift({ pagination: paginas })
+            }
             return { status: "success", data: findRole, message };
         } else {
             return { status: "error", data: [], message: "Role no encontrado" };

@@ -20,7 +20,9 @@ export async function createPermissionController(req, res) {
 export async function getPermissionController(req, res) {
     try {
         const id = Number(req.query.id) || undefined;
-        const result = await getPermission(id)
+        const page = req.query.page;
+        const limit = req.query.limit;
+        const result = await getPermission(id,page,limit)
         console.log(result, "result")
         if (result.status === "success") {
             return res.status(201).json(result);

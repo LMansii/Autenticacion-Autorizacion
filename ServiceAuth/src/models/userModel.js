@@ -126,9 +126,9 @@ export async function getUsersModels(id, email, page, limit) {
             entero = entero + 1;
             paginas = entero;
         }
-        //FIN - paginado
         let skip = Number(page) * Number(limit)
         let take = Number(limit)
+        //FIN - paginado
         if (id !== undefined) {
             whereClause.id = Number(id);
             message = "Usuario encontrado con éxito";
